@@ -1,1 +1,1 @@
-# my-economy
+# my-economy-frontend
