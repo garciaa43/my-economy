@@ -1,13 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import styles from "./LoginStyle"; 
 
-const LoginScreen = () => {
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    Alert.alert("LoginTeste", `Email: ${email}\nSenha: ${password}`);
+    Alert.alert("Login", `Email: ${email}\nSenha: ${password}`);
+  };
+
+  const handleSignUp = () => {
+    navigation.navigate('Register'); 
   };
 
   return (
@@ -28,7 +32,12 @@ const LoginScreen = () => {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Entrar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleSignUp} style={styles.signUpContainer}>
+        <Text style={styles.signUpText}>Não possui conta? Criar</Text>
+      </TouchableOpacity>
     </View>
   );
 };
