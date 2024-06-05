@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
-import styles from "./LoginStyle"; // Importando estilos do arquivo LoginStyle.ts
+import styles from "./LoginStyle"; 
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("");
