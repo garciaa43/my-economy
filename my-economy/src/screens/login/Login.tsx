@@ -7,7 +7,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    Alert.alert("Login", `Email: ${email}\nSenha: ${password}`);
+    Alert.alert("LoginTeste", `Email: ${email}\nSenha: ${password}`);
   };
 
   return (
