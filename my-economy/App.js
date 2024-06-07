@@ -11,6 +11,11 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
+      <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ title: 'Register' }}
+        />
         <Stack.Screen
         name="Meus Dados"
         component={ProfileScreen}
@@ -21,11 +26,7 @@ export default function App() {
           component={LoginScreen}
           options={{ title: 'Login' }}
         />
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{ title: 'Register' }}
-        />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
