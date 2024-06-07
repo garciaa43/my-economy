@@ -1,14 +1,33 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import styles from "./LoginStyle"; 
+import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    navigation.navigate('TabNavigator'); 
-  };
+    const data = {
+      email: email,
+      password: password
+    }
+
+    axios.post('http://192.168.0.125:3005/signin', data)
+      .then(async response => {
+        console.log(response.data);
+        const token = response.data.token;
+        await AsyncStorage.setItem('userToken', token)
+        
+        navigation.navigate('TabNavigator'); 
+      })
+      .catch(error => {
+        console.log("ERRO: ", error);
+        Alert.alert("Erro", "Ocorreu um erro, verifique suas informações e tente novamente.")
+      });
+  }
+
   const handleSignUp = () => {
     navigation.navigate('Register'); 
   };
