@@ -7,9 +7,8 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
-    Alert.alert("Login", `Email: ${email}\nSenha: ${password}`);
+    navigation.navigate('TabNavigator'); 
   };
-
   const handleSignUp = () => {
     navigation.navigate('Register'); 
   };
