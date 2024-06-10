@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import styles from "./RegisterStyle"; 
-import axios from "axios";
 
 const RegisterScreen = ({ navigation }) => {
   const [name, setName] = useState("");
@@ -14,21 +13,7 @@ const RegisterScreen = ({ navigation }) => {
     if (password !== confirmPassword) {
       Alert.alert("Erro", "As senhas não coincidem.");
     } else {
-      const data = {
-        name: name,
-        email: email,
-        birthdate: dob,
-        password: password
-      }
-      axios.post('http://192.168.0.125:3005/signup', data)
-      .then(response => {
-        console.log(response.data);
-        Alert.alert("Sucesso", "Cadastro realizado com sucesso.")
-      })
-      .catch(error => {
-        console.log("ERRO: ", error);
-        Alert.alert("Erro", "Ocorreu um erro, verifique suas informações e tente novamente.")
-      });
+      Alert.alert("Registro", `Nome: ${name}\nEmail: ${email}\nData de Nascimento: ${dob}\nSenha: ${password}`);
     }
   };
 
