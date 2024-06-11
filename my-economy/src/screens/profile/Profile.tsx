@@ -3,6 +3,7 @@ import { View, Text, Pressable } from "react-native";
 import styles from "./ProfileStyle";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { format } from 'date-fns';
 
 const ProfileScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -47,7 +48,9 @@ const ProfileScreen = ({ route, navigation }) => {
           <Text style={styles.value}>{userData.email}</Text>
 
           <Text style={styles.label}>Data de Nascimento:</Text>
-          <Text style={styles.value}>{userData.birthdate}</Text>
+          <Text style={styles.value}>
+            {format(new Date(userData.birthdate), 'dd/MM/yyyy')}
+          </Text>
         </View>
       )}
       <Pressable style={styles.pressable} onPress={handleLogout}>
