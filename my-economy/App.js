@@ -16,7 +16,7 @@ export default function App() {
           component={TabNavigatorScreen}
           options={{headerShown: false}}
         />
-        {/* <Stack.Screen
+        <Stack.Screen
           name="Login"
           component={LoginScreen}
           options={{ title: 'Login' }}
@@ -25,7 +25,7 @@ export default function App() {
           name="Register"
           component={RegisterScreen}
           options={{ title: 'Register' }}
-        />    */}
+        />  
       </Stack.Navigator>
     </NavigationContainer>
   );
