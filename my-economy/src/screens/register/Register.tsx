@@ -20,10 +20,12 @@ const RegisterScreen = ({ navigation }) => {
         birthdate: dob,
         password: password
       }
+
       //http://10.0.2.2:3005/signup
       //http://192.168.0.125:3005/signup
       //http://localhost:3005/signup
-      axios.post('http://10.0.2.2:3005/signup', data)
+
+      axios.post('http://172.20.10.5:3005/signup', data)
       .then(response => {
         console.log(response.data);
         Alert.alert("Sucesso", "Cadastro realizado com sucesso.")

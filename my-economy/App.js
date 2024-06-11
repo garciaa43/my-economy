@@ -11,11 +11,6 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-      <Stack.Screen
-          name="TabNavigator"
-          component={TabNavigatorScreen}
-          options={{headerShown: false}}
-        />
         <Stack.Screen
           name="Login"
           component={LoginScreen}
@@ -25,7 +20,12 @@ export default function App() {
           name="Register"
           component={RegisterScreen}
           options={{ title: 'Register' }}
-        />  
+        /> 
+        <Stack.Screen
+          name="TabNavigator"
+          component={TabNavigatorScreen}
+          options={{headerShown: false}}
+        /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

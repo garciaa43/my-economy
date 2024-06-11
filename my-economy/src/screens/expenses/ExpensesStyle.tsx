@@ -48,6 +48,23 @@ const styles = StyleSheet.create({
         color: 'black',
         fontSize: 16,
     },
+    textContainer: {
+        width: '80%', 
+      },
+      card: {
+        backgroundColor: 'green',
+        padding: 10,
+        borderRadius: 10,
+        marginVertical: 10,
+    },
+    textContainerExpense: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    textStyle: {
+        color: 'white',
+        fontSize: 16,
+    },
 });
 
 export default styles;
