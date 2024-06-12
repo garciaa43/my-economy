@@ -4,9 +4,11 @@ import styles from "./HomeStyle";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
+import RNPickerSelect from 'react-native-picker-select';
 
 const HomeScreen = ({ route, navigation }) => {
   const [userData, setUserData] = useState(null);
+  const [reference_month, setReference_month] = useState(null);
 
   useEffect(() => {
     handleUserInfo();
@@ -15,7 +17,7 @@ const HomeScreen = ({ route, navigation }) => {
   const handleUserInfo = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await axios.get("http://192.168.0.51:3005/user", {
+      const response = await axios.get("http://192.168.0.55:3005/user", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -26,6 +28,31 @@ const HomeScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleMonthChange = (month) => {
+    if (month === null) {
+        setReference_month(null);
+        return;
+    }
+    const currentDate = new Date();
+    const newDate = new Date(currentDate.getFullYear(), month - 1, currentDate.getDate());
+    setReference_month(newDate);
+};
+
+const meses = [
+  { label: 'Janeiro', value: 1 },
+  { label: 'Fevereiro', value: 2 },
+  { label: 'Março', value: 3 },
+  { label: 'Abril', value: 4 },
+  { label: 'Maio', value: 5 },
+  { label: 'Junho', value: 6 },
+  { label: 'Julho', value: 7 },
+  { label: 'Agosto', value: 8 },
+  { label: 'Setembro', value: 9 },
+  { label: 'Outubro', value: 10 },
+  { label: 'Novembro', value: 11 },
+  { label: 'Dezembro', value: 12 },
+];
+
   return (
     <View style={styles.hello}>
       {userData && (
@@ -35,7 +62,18 @@ const HomeScreen = ({ route, navigation }) => {
         </>
       )}
       <View style={styles.container}>
-        <Text style={styles.userHello}>Selecione o mês</Text>
+      <RNPickerSelect
+                onValueChange={handleMonthChange}
+                items={meses}
+                style={{
+                    inputIOS: styles.input,
+                    inputAndroid: styles.input,
+                }}
+                placeholder={{
+                    label: 'Selecione um mês...',
+                    value: null,
+                }}
+            />
         <View style={styles.boxContainer}>
           <LinearGradient
             colors={["rgb(71, 173, 98)", "rgba(135, 204, 153, 0.8)"]}
@@ -48,5 +86,18 @@ const HomeScreen = ({ route, navigation }) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f8f8f8',
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+});
 
 export default HomeScreen;
