@@ -37,6 +37,15 @@ const styles = StyleSheet.create({
         height: 220,
         borderRadius: 15,
       },
+    input: {
+        height: 40,
+        borderColor: "darkgreen",
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        width: 300,
+        marginLeft: 35
+    },
   });
   
   export default styles;
