@@ -18,7 +18,7 @@ const DespesaScreen = () => {
     const handleUserExpenses = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get('http://172.20.10.5:3005/expense', {
+            const response = await axios.get('http://192.168.0.51:3005/expense', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -43,7 +43,7 @@ const DespesaScreen = () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.post('http://172.20.10.5:3005/expense/create', expenseData, {
+            const response = await axios.post('http://192.168.0.51:3005/expense/create', expenseData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -71,6 +71,35 @@ const DespesaScreen = () => {
         const newDate = new Date(currentDate.getFullYear(), month - 1, currentDate.getDate());
         setReference_month(newDate);
     };
+
+
+    function handleMonthChangeFilter(monthValue) {
+        const year = new Date().getFullYear();
+        const month = ("0" + monthValue).slice(-2);
+        const selectedMonth = `${year}-${month}`;
+        fetchExpenses(selectedMonth);
+    }
+
+    async function fetchExpenses(selectedMonth) {
+        const currentYear = new Date().getFullYear(); // Obtém o ano atual
+        const fullSelectedMonth = `${selectedMonth}`;
+        const url = `http://192.168.0.51:3005/expense/mes/${fullSelectedMonth}`;
+
+        // Imprimindo a URL no console com formatação visual
+        console.log(`%c URL da requisição: ${url}`, 'color: #3880ff; font-weight: bold');
+
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.get(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setExpenseData(response.data.expenses);
+        } catch (error) {
+            console.error('Erro ao buscar despesas', error);
+        }
+    }
 
     const meses = [
         { label: 'Janeiro', value: 1 },
@@ -119,6 +148,18 @@ const DespesaScreen = () => {
                 <Text style={styles.buttonText}>Salvar</Text>
             </TouchableOpacity>
             <Text style={styles.title2}>Histórico</Text>
+            <RNPickerSelect
+                onValueChange={handleMonthChangeFilter}
+                items={meses}
+                style={{
+                    inputIOS: styles.input,
+                    inputAndroid: styles.input,
+                }}
+                placeholder={{
+                    label: 'Selecione um mês...',
+                    value: null,
+                }}
+            />
             <FlatList
                 data={expenseData}
                 keyExtractor={(item) => item.id.toString()}
