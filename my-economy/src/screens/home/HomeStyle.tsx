@@ -46,6 +46,20 @@ const styles = StyleSheet.create({
         width: 300,
         marginLeft: 35
     },
+
+    progressBar: {
+      height: 10,
+      width: '100%',
+      backgroundColor: '#f0f0f0',
+      borderRadius: 5,
+      overflow: 'hidden',
+    },
+    progress: {
+      height: '100%',
+      backgroundColor: '#4caf50',
+    },
+
+
   });
-  
+
   export default styles;
