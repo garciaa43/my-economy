@@ -17,7 +17,7 @@ const HomeScreen = ({ route, navigation }) => {
   const handleUserInfo = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-      const response = await axios.get("http://192.168.0.55:3005/user", {
+      const response = await axios.get("http://192.168.0.51:3005/user", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -87,17 +87,5 @@ const meses = [
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-});
 
 export default HomeScreen;

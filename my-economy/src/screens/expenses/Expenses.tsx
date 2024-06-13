@@ -23,7 +23,7 @@ const DespesaScreen = () => {
     const handleGetExpenses = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get('http://192.168.1.102:3005/expense', {
+            const response = await axios.get('http://192.168.0.51:3005/expense', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -49,7 +49,7 @@ const DespesaScreen = () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.post('http://192.168.1.102:3005/expense/create', expenseData, {
+            const response = await axios.post('http://192.168.0.51:3005/expense/create', expenseData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -76,7 +76,7 @@ const DespesaScreen = () => {
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.put('http://192.168.1.102:3005/expense/update', {
+            const response = await axios.put('http://192.168.0.51:3005/expense/update', {
                 id: editingExpense.id,
                 description: newDescription,
                 amount: parseFloat(newAmount),
@@ -100,7 +100,7 @@ const DespesaScreen = () => {
     const handleDeleteExpense = async (id) => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.delete('http://192.168.1.102:3005/expense/delete', {
+            const response = await axios.delete('http://192.168.0.51:3005/expense/delete', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
@@ -138,21 +138,27 @@ const DespesaScreen = () => {
     const fetchExpensesByMonth = async (month) => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get(`http://192.168.1.102:3005/expense/mes/${month}`, {
+            const url = `http://192.168.0.51:3005/expense/mes/${month}`;
+            
+            // Printar a URL completa no console
+            console.log('URL completa:', url);
+    
+            const response = await axios.get(url, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
+    
             if (response.status === 200) {
-                setExpenseData(response.data.expenses);
+                setExpenseData(response.data.limits);
             } else {
                 console.log('Erro ao buscar despesas por mês:', response.data);
             }
         } catch (error) {
             console.error('Erro ao buscar despesas por mês', error);
-            Alert.alert('Erro', error.response.data);
         }
     };
+    
 
     const meses = [
         { label: 'Janeiro', value: '01-01-2024' },
