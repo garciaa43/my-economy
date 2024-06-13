@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, FlatList } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Modal, Button } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import axios from 'axios';
 import styles from './ExpensesStyle';
@@ -9,16 +9,21 @@ const DespesaScreen = () => {
     const [description, setDescription] = useState('');
     const [amount, setAmount] = useState('');
     const [reference_month, setReference_month] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState(null);
     const [expenseData, setExpenseData] = useState([]);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [editingExpense, setEditingExpense] = useState(null);
+    const [newDescription, setNewDescription] = useState('');
+    const [newAmount, setNewAmount] = useState('');
 
     useEffect(() => {
-        handleUserExpenses();
+        handleGetExpenses();
     }, []);
 
-    const handleUserExpenses = async () => {
+    const handleGetExpenses = async () => {
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get('http://192.168.0.51:3005/expense', {
+            const response = await axios.get('http://192.168.1.102:3005/expense', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -26,10 +31,11 @@ const DespesaScreen = () => {
             setExpenseData(response.data.expenses);
         } catch (error) {
             console.log(error);
+            Alert.alert('Erro', 'Ocorreu um erro ao buscar as despesas.');
         }
     };
 
-    const handleSave = async () => {
+    const handleSaveExpense = async () => {
         if (!description || !amount || !reference_month) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos');
             return;
@@ -38,12 +44,12 @@ const DespesaScreen = () => {
         const expenseData = {
             description,
             amount: parseFloat(amount),
-            reference_month: reference_month.toISOString(),
+            reference_month,
         };
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.post('http://192.168.0.51:3005/expense/create', expenseData, {
+            const response = await axios.post('http://192.168.1.102:3005/expense/create', expenseData, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -53,67 +59,114 @@ const DespesaScreen = () => {
                 setDescription('');
                 setAmount('');
                 setReference_month(null);
-                handleUserExpenses(); // Refresh the expenses list
+                handleGetExpenses(); // Refresh the expenses list
             } else {
-                Alert.alert('Erro', `Não foi possível cadastrar a despesa: ${response.data.message}`);
+                Alert.alert('Erro', response.data);
             }
         } catch (error) {
-            Alert.alert('Erro', 'Ocorreu um erro ao cadastrar a despesa');
+            Alert.alert('Erro', error.response.data);
         }
     };
 
-    const handleMonthChange = (month) => {
-        if (month === null) {
-            setReference_month(null);
+    const handleEditExpense = async () => {
+        if (!newDescription || !newAmount) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos');
             return;
         }
-        const currentDate = new Date();
-        const newDate = new Date(currentDate.getFullYear(), month - 1, currentDate.getDate());
-        setReference_month(newDate);
-    };
-
-
-    function handleMonthChangeFilter(monthValue) {
-        const year = new Date().getFullYear();
-        const month = ("0" + monthValue).slice(-2);
-        const selectedMonth = `${year}-${month}`;
-        fetchExpenses(selectedMonth);
-    }
-
-    async function fetchExpenses(selectedMonth) {
-        const currentYear = new Date().getFullYear(); // Obtém o ano atual
-        const fullSelectedMonth = `${selectedMonth}`;
-        const url = `http://192.168.0.51:3005/expense/mes/${fullSelectedMonth}`;
-
-        // Imprimindo a URL no console com formatação visual
-        console.log(`%c URL da requisição: ${url}`, 'color: #3880ff; font-weight: bold');
 
         try {
             const token = await AsyncStorage.getItem('userToken');
-            const response = await axios.get(url, {
+            const response = await axios.put('http://192.168.1.102:3005/expense/update', {
+                id: editingExpense.id,
+                description: newDescription,
+                amount: parseFloat(newAmount),
+            }, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-            setExpenseData(response.data.expenses);
+            if (response.status === 200) {
+                Alert.alert('Sucesso', 'Despesa editada com sucesso!');
+                setModalVisible(false);
+                handleGetExpenses(); // Refresh the expenses list
+            } else {
+                Alert.alert('Erro', response.data);
+            }
         } catch (error) {
-            console.error('Erro ao buscar despesas', error);
+            Alert.alert('Erro', error.response.data);
         }
-    }
+    };
+
+    const handleDeleteExpense = async (id) => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.delete('http://192.168.1.102:3005/expense/delete', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                data: { id }
+            });
+            if (response.status === 200) {
+                Alert.alert('Sucesso', 'Despesa excluída com sucesso!');
+                handleGetExpenses(); // Refresh the expenses list
+            } else {
+                Alert.alert('Erro', response.data);
+            }
+        } catch (error) {
+            Alert.alert('Erro', error.response.data);
+        }
+    };
+
+    const openEditModal = (expense) => {
+        setEditingExpense(expense);
+        setNewDescription(expense.description);
+        setNewAmount(expense.amount.toString());
+        setModalVisible(true);
+    };
+
+    const handleMonthFilterChange = (month) => {
+        if (month === null) {
+            setSelectedMonth(null);
+            handleGetExpenses(); // If no month is selected, show all expenses
+            return;
+        }
+
+        setSelectedMonth(month);
+        fetchExpensesByMonth(month);
+    };
+
+    const fetchExpensesByMonth = async (month) => {
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            const response = await axios.get(`http://192.168.1.102:3005/expense/mes/${month}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.status === 200) {
+                setExpenseData(response.data.expenses);
+            } else {
+                console.log('Erro ao buscar despesas por mês:', response.data);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar despesas por mês', error);
+            Alert.alert('Erro', error.response.data);
+        }
+    };
 
     const meses = [
-        { label: 'Janeiro', value: 1 },
-        { label: 'Fevereiro', value: 2 },
-        { label: 'Março', value: 3 },
-        { label: 'Abril', value: 4 },
-        { label: 'Maio', value: 5 },
-        { label: 'Junho', value: 6 },
-        { label: 'Julho', value: 7 },
-        { label: 'Agosto', value: 8 },
-        { label: 'Setembro', value: 9 },
-        { label: 'Outubro', value: 10 },
-        { label: 'Novembro', value: 11 },
-        { label: 'Dezembro', value: 12 },
+        { label: 'Janeiro', value: '01-01-2024' },
+        { label: 'Fevereiro', value: '01-02-2024' },
+        { label: 'Março', value: '01-03-2024' },
+        { label: 'Abril', value: '01-04-2024' },
+        { label: 'Maio', value: '01-05-2024' },
+        { label: 'Junho', value: '01-06-2024' },
+        { label: 'Julho', value: '01-07-2024' },
+        { label: 'Agosto', value: '01-08-2024' },
+        { label: 'Setembro', value: '01-09-2024' },
+        { label: 'Outubro', value: '01-10-2024' },
+        { label: 'Novembro', value: '01-11-2024' },
+        { label: 'Dezembro', value: '01-12-2024' },
     ];
 
     return (
@@ -133,7 +186,7 @@ const DespesaScreen = () => {
                 keyboardType="numeric"
             />
             <RNPickerSelect
-                onValueChange={handleMonthChange}
+                onValueChange={setReference_month}
                 items={meses}
                 style={{
                     inputIOS: styles.input,
@@ -144,12 +197,12 @@ const DespesaScreen = () => {
                     value: null,
                 }}
             />
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
+            <TouchableOpacity style={styles.button} onPress={handleSaveExpense}>
                 <Text style={styles.buttonText}>Salvar</Text>
             </TouchableOpacity>
             <Text style={styles.title2}>Histórico</Text>
             <RNPickerSelect
-                onValueChange={handleMonthChangeFilter}
+                onValueChange={handleMonthFilterChange}
                 items={meses}
                 style={{
                     inputIOS: styles.input,
@@ -164,14 +217,44 @@ const DespesaScreen = () => {
                 data={expenseData}
                 keyExtractor={(item) => item.id.toString()}
                 renderItem={({ item }) => (
-                    <View style={styles.card}>
+                    <TouchableOpacity style={styles.card} onPress={() => openEditModal(item)}>
                         <View style={styles.textContainerExpense}>
                             <Text style={styles.textStyle}>{item.description}</Text>
                             <Text style={styles.textStyle}>{item.amount}</Text>
+                            <TouchableOpacity onPress={() => handleDeleteExpense(item.id)}>
+                                <Text style={styles.deleteButton}>Excluir</Text>
+                            </TouchableOpacity>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
+            <Modal
+                visible={modalVisible}
+                animationType="slide"
+                transparent={true}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Editar Despesa</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Descrição"
+                            value={newDescription}
+                            onChangeText={setNewDescription}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Valor"
+                            value={newAmount}
+                            onChangeText={setNewAmount}
+                            keyboardType="numeric"
+                        />
+                        <Button title="Salvar" onPress={handleEditExpense} />
+                        <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
