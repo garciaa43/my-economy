@@ -65,6 +65,31 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
     },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        width: 300,
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        alignItems: 'center',
+      },
+      modalTitle: {
+        fontSize: 18,
+        marginBottom: 10,
+      },
+      deleteButton: {
+        backgroundColor: '#28a745',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 4,
+        alignItems: 'center',
+        flex: 1,
+      },
 });
 
 export default styles;
