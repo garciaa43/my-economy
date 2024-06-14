@@ -23,10 +23,12 @@
     "react-native": "0.74.1",
     "react-native-date-picker": "^5.0.4",
     "react-native-picker-select": "^9.1.3",
+    "react-native-progress": "^5.0.1",
     "typescript": "~5.3.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@types/react-native": "^0.73.0"
   },
   "private": true
 }

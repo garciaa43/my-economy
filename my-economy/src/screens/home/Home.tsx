@@ -1,115 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Alert } from 'react-native';
-import styles from "./HomeStyle";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import RNPickerSelect from 'react-native-picker-select';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProgressBar from 'react-native-progress/Bar'; 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import styles from "./HomeStyle";
 
-const HomeScreen = ({ route, navigation }) => { 
-  const [progress, setProgress] = useState(0.0);
-  const [mes, setMes] = useState(null);
+const HomeScreen = ({ route, navigation }) => {
   const [limiteConsultado, setLimiteConsultado] = useState(null);
   const [expenseData, setExpenseData] = useState([]);
   const [userData, setUserData] = useState(null);
-
-  useEffect(() => {
-    handleUserInfo();
-  }, []);
-
-  const handleUserInfo = async () => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
-      const response = await axios.get("http://192.168.0.11:3005/user", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUserData(response.data.users[0]);
-    } catch (error) {
-      console.log(error);
-      Alert.alert('Erro', 'Erro ao carregar informações do usuário.');
-    }
-  };
-
-  const handleMonthChange = (month) => {
-    if (month === null) {
-      setMes(null);
-      setLimiteConsultado(null);
-      setExpenseData([]);
-      setProgress(0);
-      return;
-    }
-    setMes(month.value);
-  };
-
-  const handleGetLimit = async (selectedMonth) => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.get(`http://192.168.0.11:3005/limit/mes/${selectedMonth}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const limitData = response.data.limits[0];
-      setLimiteConsultado(limitData);
-      await handleGetExpenses(limitData); // Chama a busca das despesas após obter o limite
-    } catch (error) {
-      console.log('ERRO: ', error);
-      Alert.alert('Erro', error.response?.data || 'Erro ao buscar o limite.');
-    }
-  };
-
-  const handleGetExpenses = async (limitData) => {
-    try {
-      const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.get('http://192.168.0.11:3005/expense', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const expenses = response.data.expenses;
-      setExpenseData(expenses);
-      updateProgress(limitData, expenses); // Atualiza o progresso após obter as despesas
-    } catch (error) {
-      console.log('ERRO: ', error);
-      Alert.alert('Erro', 'Ocorreu um erro ao buscar as despesas.');
-    }
-  };
-
-  const updateProgress = (limitData, expenseData) => {
-    if (limitData && expenseData && limitData.limit > 0) {
-      const totalExpenses = expenseData.reduce((sum, expenseData) => sum + expenseData.amount, 0);
-      const calculatedProgress = totalExpenses / limitData.limit
-      setProgress(calculatedProgress > 1 ? 1 : calculatedProgress);
-    } else {
-      setProgress(0);
-    }
-  };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (mes) {
-        Alert.alert("teste");
-        try {
-          const limitData = await handleGetLimit(mes);
-          if (limitData != null) {
-            await handleGetExpenses(limitData);
-            Alert.alert("teste");
-          } else {
-            setExpenseData([]);
-            setProgress(0);
-            Alert.alert("teste");
-          }
-        } catch (error) {
-          console.error('Erro ao buscar dados:', error);
-          Alert.alert('Erro', 'Ocorreu um erro ao buscar os dados.');
-        }
-      }
-    };
-    fetchData();
-  }, [mes]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [limitAmount, setLimitAmount] = useState(null); 
+  const [expenseAmounts, setExpenseAmounts] = useState([]);
+  const [percentageUsed, setPercentageUsed] = useState(0); 
+  const [progressBarProgress, setProgressBarProgress] = useState(0);
 
   const meses = [
     { label: 'Janeiro', value: '01-01-2024' },
@@ -125,6 +31,97 @@ const HomeScreen = ({ route, navigation }) => {
     { label: 'Novembro', value: '01-11-2024' },
     { label: 'Dezembro', value: '01-12-2024' },
   ];
+
+  useEffect(() => {
+    if (selectedMonth) {
+      handleGetLimit(selectedMonth);
+      handleGetExpenses(selectedMonth);
+    }
+  }, [selectedMonth]);
+
+  useEffect(() => {
+    if (limitAmount && expenseAmounts.length > 0) {
+      const totalExpenses = expenseAmounts.reduce((acc, curr) => acc + curr, 0);
+      const percentageUsed = (totalExpenses / parseFloat(limitAmount)) * 100;
+      setProgressBarProgress(percentageUsed / 100);
+    }
+  }, [limitAmount, expenseAmounts]);
+
+  const handleUserInfo = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await axios.get("http://192.168.0.51:3005/user", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserData(response.data.users[0]);
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Erro', 'Erro ao carregar informações do usuário.');
+    }
+  };
+
+  const handleGetLimit = async (selectedMonth) => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const url = `http://192.168.0.51:3005/limit/mes/${selectedMonth}`;
+      console.log('URL handleGetLimit:', url);
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const limitData = response.data.limits[0];
+      setLimiteConsultado(limitData);
+      setLimitAmount(limitData.limit_amount); 
+      console.log('Limit Amount:', limitData.limit_amount); 
+    } catch (error) {
+      console.log('ERRO: ', error);
+      //Alert.alert('Erro', error.response?.data || 'Erro ao buscar o limite.');
+    }
+  };
+
+  const handleGetExpenses = async (month) => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+      const url = `http://192.168.0.51:3005/expense/mes/${month}`;
+      console.log('URL handleGetExpenses:', url);
+
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        setExpenseData(response.data.limits);
+        const amounts = response.data.limits.map(expense => parseFloat(expense.amount));
+        setExpenseAmounts(amounts);
+        console.log('Expense Amounts:', amounts);
+
+        const totalExpenses = amounts.reduce((acc, curr) => acc + curr, 0);
+        const limit = parseFloat(limitAmount);
+        const percentage = (totalExpenses / limit) * 100;
+        setPercentageUsed(parseFloat(percentage.toFixed(2)));
+        console.log('Total Expenses:', totalExpenses);
+        console.log('Percentage Used:', percentage);
+      } else {
+        console.log('Erro ao buscar despesas por mês:', response.data);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar despesas por mês', error);
+    }
+  };
+
+  const handleMonthChange = async (value) => {
+    setSelectedMonth(value);
+    if (value) {
+      await handleGetLimit(value);
+      await handleGetExpenses(value);
+    }
+  };
 
   return (
     <View style={styles.hello}>
@@ -159,9 +156,9 @@ const HomeScreen = ({ route, navigation }) => {
         <Text style={styles.userHello}>Progresso</Text>
         <View style={styles.progressBar}>
           <ProgressBar
-            progress={progress}
+            progress={progressBarProgress}
             width={null}
-            height={10}
+            height={20}
             borderRadius={5}
             color="rgb(71, 173, 98)"
             unfilledColor="rgba(135, 204, 153, 0.3)"

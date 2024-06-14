@@ -127,7 +127,7 @@ const DespesaScreen = () => {
     const handleMonthFilterChange = (month) => {
         if (month === null) {
             setSelectedMonth(null);
-            handleGetExpenses(); // If no month is selected, show all expenses
+            handleGetExpenses();
             return;
         }
 
