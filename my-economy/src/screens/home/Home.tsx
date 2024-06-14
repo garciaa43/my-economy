@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import RNPickerSelect from 'react-native-picker-select';
 import { LinearGradient } from 'expo-linear-gradient';
-import ProgressBar from 'react-native-progress/Bar'; 
+import ProgressBar from 'react-native-progress/Bar';
 import styles from "./HomeStyle";
 
 const HomeScreen = ({ route, navigation }) => {
@@ -12,9 +12,9 @@ const HomeScreen = ({ route, navigation }) => {
   const [expenseData, setExpenseData] = useState([]);
   const [userData, setUserData] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
-  const [limitAmount, setLimitAmount] = useState(null); 
+  const [limitAmount, setLimitAmount] = useState(null);
   const [expenseAmounts, setExpenseAmounts] = useState([]);
-  const [percentageUsed, setPercentageUsed] = useState(0); 
+  const [percentageUsed, setPercentageUsed] = useState(0);
   const [progressBarProgress, setProgressBarProgress] = useState(0);
 
   const meses = [
@@ -36,6 +36,8 @@ const HomeScreen = ({ route, navigation }) => {
     if (selectedMonth) {
       handleGetLimit(selectedMonth);
       handleGetExpenses(selectedMonth);
+      handleUserInfo();
+
     }
   }, [selectedMonth]);
 
@@ -75,11 +77,11 @@ const HomeScreen = ({ route, navigation }) => {
       });
       const limitData = response.data.limits[0];
       setLimiteConsultado(limitData);
-      setLimitAmount(limitData.limit_amount); 
-      console.log('Limit Amount:', limitData.limit_amount); 
+      setLimitAmount(limitData.limit_amount);
+      console.log('Limit Amount:', limitData.limit_amount);
     } catch (error) {
       console.log('ERRO: ', error);
-      //Alert.alert('Erro', error.response?.data || 'Erro ao buscar o limite.');
+      Alert.alert('Erro', error.response?.data);
     }
   };
 
@@ -111,7 +113,7 @@ const HomeScreen = ({ route, navigation }) => {
         console.log('Erro ao buscar despesas por mês:', response.data);
       }
     } catch (error) {
-      console.error('Erro ao buscar despesas por mês', error);
+      Alert.alert("Erro", error);
     }
   };
 
@@ -150,8 +152,13 @@ const HomeScreen = ({ route, navigation }) => {
             colors={['rgb(71, 173, 98)', 'rgba(135, 204, 153, 0.8)']}
             style={styles.background}
           >
-            <Text style={styles.userHello}> STATUS DA META </Text>
+            <Text style={styles.statusMeta}>
+              {percentageUsed === 0 ? 'Status da meta' :
+                percentageUsed < 100 ? 'Parabéns, você economizou 🤩' : 'Objetivo não atingido 😢'
+                }
+            </Text>
           </LinearGradient>
+
         </View>
         <Text style={styles.userHello}>Progresso</Text>
         <View style={styles.progressBar}>

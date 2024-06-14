@@ -8,6 +8,17 @@ const styles = StyleSheet.create({
         backgroundColor: '#f8f8f8',
         padding: 20, 
     },
+    statusMeta: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      textAlign: 'center',
+      textAlignVertical: 'center', 
+      color: 'white',
+      flex: 1, 
+      paddingTop: 100
+    },
+    
+    
     container: {
         flex: 1,
         justifyContent: 'center',
