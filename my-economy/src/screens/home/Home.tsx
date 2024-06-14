@@ -33,11 +33,10 @@ const HomeScreen = ({ route, navigation }) => {
   ];
 
   useEffect(() => {
+    handleUserInfo();
     if (selectedMonth) {
       handleGetLimit(selectedMonth);
       handleGetExpenses(selectedMonth);
-      handleUserInfo();
-
     }
   }, [selectedMonth]);
 
