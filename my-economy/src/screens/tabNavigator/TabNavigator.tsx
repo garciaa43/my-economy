@@ -28,16 +28,13 @@ const TabNavigatorScreen = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        // tabBarOptions: {
-        //   activeTintColor: 'green',
-        //   inactiveTintColor: DefaultTheme.colors.text,
-        // },
       })}
     >
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
-      <Tab.Screen name="Expenses" component={ExpensesScreen} />
       <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Expenses" component={ExpensesScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+      
     </Tab.Navigator>
   );
 };
